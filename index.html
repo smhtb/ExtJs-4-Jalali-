@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>ExtJs with jalali calender</title>
+        <script type="text/javascript" src="ext-all.js"></script>
+        
+        <script type="text/javascript" src="ext.jalali/jalali.js"></script>
+        <script type="text/javascript" src="ext.jalali/date.jalali.js"></script>
+        <script type="text/javascript" src="ext.jalali/date.jalali.picker.js"></script>
+       
+        <link rel="stylesheet" type="text/css" href="resources/css/ext-all.css"/>
+        <script type="text/javascript">
+            var menu;
+            var dateMenu;
+            var tb;
+            Ext.onReady(function(){
+                dateMenu=Ext.create('Ext.menu.DatePicker',{
+                    jalali:true,///////This is the important part! every where you need jalali calendar add jalali option with true value.
+                    handler:function(value,date){alert(value+" - - "+date);}
+                });
+                menu=Ext.create('Ext.menu.Menu',{
+                    items:[{
+                        text:"jalali date picker",
+                        menu:dateMenu
+                    }]
+                })
+                tb = Ext.create('Ext.toolbar.Toolbar');
+                tb.render('toolbar');
+                tb.suspendLayouts();
+                tb.add({
+                    text:'Menu',
+                    iconCls: 'bmenu',
+                    menu: menu  
+                });
+                tb.resumeLayouts(true);
+            });
+        </script>
+    </head>
+    <body>
+        <div id="toolbar"></div>
+    </body>
+</html>

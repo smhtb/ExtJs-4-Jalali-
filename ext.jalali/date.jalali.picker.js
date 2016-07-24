@@ -1,6 +1,7 @@
+Soc.calendar="jalali";
 Ext.override(Ext.DatePicker, {
     dayNames: Ext.Date.jalali.dayNames,
-    format: 'Y/m/d',
+    format: 'Y-m-d',
     todayText: 'امروز',
     okText: 'ادامه',
     cancelText: 'برگشت',
@@ -12,7 +13,8 @@ Ext.override(Ext.DatePicker, {
     nextText: 'ماه پسین (مهار+راست)',
     prevText: 'ماه پیشین (مهار+چپ)',
     monthYearText: 'ماه را انتخاب کنید (جابجایی سال با مهار+بالا/پایین)',
-    startDay: 6
+    startDay: 6,
+	jalali:true
 });
 Ext.apply(Ext.DatePicker, {
     jalali:false
@@ -22,7 +24,7 @@ Ext.apply(Ext.picker.Month, {
 });
 
 Ext.override(Ext.form.DateField, {
-    format: 'Y/m/d',
+    format: 'Y-m-d',
     todayText: 'امروز',
     okText: 'ادامه',
     cancelText: 'برگشت',
@@ -32,7 +34,34 @@ Ext.override(Ext.form.DateField, {
     invalidText: '{0} تاریخ درستی نیست، باید در قالب «سال/ماه/روز» باشد',
     disabledDaysText: 'غیرفعال',
     disabledDatesText: 'غیرفعال',
-    startDay: 6
+    startDay: 6,
+	valueToRaw: function(nv) {
+		if(nv){
+			var month = (nv.getMonth()+1)<10 ? "0"+(nv.getMonth()+1) : (nv.getMonth()+1);
+			var day = nv.getDate()<10 ? "0"+nv.getDate() : nv.getDate();
+			var year = nv.getFullYear();
+			return Date.jalaliConverter.gregorianToJalali([year,month,day]).join('-');
+		}
+		return null;
+	},
+    rawToValue: function(rawValue) {
+		if(rawValue)
+        	return new Date(Date.jalaliConverter.jalaliToGregorian(rawValue.split('-')).join('-')) || rawValue || null;
+		return null;
+    },
+    beforeBlur : function(){
+        var me = this,
+            v = me.rawToValue(me.getRawValue()),
+            focusTask = me.focusTask;
+
+        if (focusTask) {
+            focusTask.cancel();
+        }
+
+        if (v) {
+            me.setValue(v);
+        }
+    }	
 });
 
 Ext.apply(Ext.form.DateField, {
@@ -41,6 +70,7 @@ Ext.apply(Ext.form.DateField, {
 
 
 Ext.override(Ext.DatePicker,{
+	
 beforeRender: function () {
         /*
          * days array for looping through 6 full weeks (6 weeks * 7 days)
@@ -272,13 +302,12 @@ createMonthPicker: function(){
         }
         if(!this.jalali)
             me.monthBtn.setText(Ext.Date.format(date, me.monthYearFormat));
-        else
-            me.monthBtn.setText(Ext.Date.jalali.format(date, me.monthYearFormat));
+        else 
+			me.monthBtn.setText(Ext.Date.jalali.format(date, me.monthYearFormat));
     },
     update : function(date, forceRefresh){
         var me = this,
             active = me.activeDate;
-
         if (me.rendered) {
             me.activeDate = date;
             var activeMonth= active ? (!this.jalali ? active.getMonth() : active.getJalaliMonth()) : null;
